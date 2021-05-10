@@ -49,7 +49,7 @@ class snp():
 	"""Simple class to store contig ID and position info for SNPs"""
 	def __init__(self, line):
 		self.contig = line.split()[0].split(':')[0]
-		self.position = line.split()[1]
+		self.position = int(line.split()[1])
 		
 
 
