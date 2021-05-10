@@ -58,36 +58,6 @@ def fasta_to_dict(FASTA_file):
 
 	return fasta_dict
 
-def pad_read(sam_entry, pos1, pos2):
-	"""Given start and end coordinates of region of interest, adds padding with '-' to read that maps to that location 
-	such that the returned padded segment of the read has length equal to pos2-pos1.
-	
-		Args:
-			sam_entry (TYPE): Description
-			pos1 (TYPE): Description
-			pos2 (TYPE): Description
-	
-		Returns:
-			TYPE: Description
-	"""
-	read = snpclasses.Read_padding()
-	read.read_name = sam_entry.qname
-	seqindex1 = pos1 - sam_entry.pos
-	seqindex2 = pos2 - sam_entry.pos
-	if pos1 < sam_entry.pos:
-		read.pad += 1
-		read.padl = sam_entry.pos - pos1
-		seqindex1 = 0
-	if pos2 > sam_entry.end:
-		read.pad += 2
-		read.padr = 1 + pos2 - sam_entry.end
-		seqindex2 = sam_entry.ln
-
-	read.seq = sam_entry.seq[seqindex1:seqindex2+1]
-	read.qual = sam_entry.qual[seqindex1:seqindex2+1]
-	read.cigar = sam_entry.cigar
-	return read.report_pad_seq()
-
 
 def cigar_mod_read(seq1, qual1, cigar):
 	"""
