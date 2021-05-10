@@ -1,7 +1,24 @@
 #!/usr/bin/env python3
 
 class SAM_data(object):
-	"""stores columns of SAM entry as attributes"""
+	"""stores columns of SAM entry as attributes
+	SAM format columns:
+
+Col		Field		Type		Regexp/Range					Brief description
+1 		QNAME 		String 		[!-?A-~]{1,254} 				Query template NAME
+2 		FLAG 		Int 		[0, 2^16 − 1] 					bitwise FLAG
+3 		RNAME 		String 		\*|[:rname:∧*=][:rname:]* 		Reference sequence NAME11
+4 		POS 		Int 		[0, 2^31 − 1] 					1-based leftmost mapping POSition
+5 		MAPQ 		Int 		[0, 2^8 − 1] 					MAPping Quality
+6 		CIGAR 		String 		\*|([0-9]+[MIDNSHPX=])+ 		CIGAR string
+7 		RNEXT 		String 		\*|=|[:rname:∧*=][:rname:]*		Reference name of the mate/next read
+8 		PNEXT 		Int 		[0, 2^31 − 1] 					Position of the mate/next read
+9 		TLEN 		Int 		[−2^31 + 1, 2^31 − 1] 			observed Template LENgth
+10 		SEQ 		String 		\*|[A-Za-z=.]+ 					segment SEQuence
+11 		QUAL 		String 		[!-~]+ 							ASCII of Phred-scaled base QUALity+33
+
+original read len = sum of numbers in cigar string. e.g. 56H147M means read is 56+147 long = 203.
+"""
 	def __init__(self, object):
 		self.qname = object.split('\t')[0]
 		self.flag = object.split('\t')[1]
@@ -35,23 +52,4 @@ class snp():
 		self.position = line.split()[1]
 		
 
-class Read_padding():
-	"""Store information about how much to pad reads when printing them in order to maintain register between lines"""
-	def __init__(self):
-		self.read_name = ''
-		self.seq = ''
-		self.qual = ''
-		self.cigar = ''
-		self.pad = 0 # 0: no pad, 1: left pad, 2: right pad, 3: both sides pad
-		self.padl = 0
-		self.padr = 0
-		self.warning = ''
-		
-	def report_pad_seq(self):
-		for i in self.qual:
-			if ord(i) < 53:
-				self.warning = '!!!WARNING: Low quality base call in sequence!!!'
 
-		pseq = '-' * self.padl + self.seq + '-' * self.padr 
-		pqual = '-' * self.padl + self.qual + '-' * self.padr
-		return '\t'.join([self.read_name, pseq, pqual, self.cigar, self.warning])
