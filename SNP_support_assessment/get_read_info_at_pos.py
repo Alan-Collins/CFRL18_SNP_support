@@ -61,8 +61,15 @@ def fasta_to_dict(FASTA_file):
 
 def cigar_mod_read(seq1, qual1, cigar):
 	"""
-	According to the M, I, and D components of a cigar string, modifies a seq and quality score strings so that they are in register with refernce sequence 
-	returns: modified sequence, modified quality score string
+		According to the M, I, and D components of a cigar string, modifies a seq and quality score strings so that they are in register with reference sequence 
+	
+		Args:
+			seq1 (str): nucleotide sequence of read.
+			qual1 (str): quality score string of read.
+			cigar (str): cigar string of sam alignment of read against reference genome.
+	
+		Returns:
+			tuple: seq2 (str) cigar-modified sequence of read, qual2 (str) cigar-modified quality scores
 	"""
 	cig_sects = re.findall('([0-9]+[A-Z]+)', cigar)
 
@@ -91,15 +98,12 @@ def cigar_mod_read(seq1, qual1, cigar):
 	return seq2, qual2
 
 
-def rounddown(x):
-	return int(math.floor(x / 100.0)) * 100
-
 
 
 def get_read_support(sam_dict, contig, position):
 	
-	position = int(position)
-	snp_bin = rounddown(position)
+	position = position
+	snp_bin = (position//100)*100
 
 	bases, qualities, ids = [], [], []
 	if snp_bin in sam_dict[contig].keys():
@@ -176,7 +180,7 @@ def do_MP_SNP_support(sam_file):
 							if any([x in entry.cigar for x in ['D','I','S']]):
 								entry.mod_seq, entry.mod_qual = cigar_mod_read(entry.seq, entry.qual, entry.cigar)
 								entry.refresh()
-							span_locs = [x for x in range(rounddown(entry.pos), entry.end, 100)]
+							span_locs = [x for x in range((entry.pos//100)*100, entry.end, 100)]
 							if entry.rname in sam_dict.keys():
 								for loc in span_locs:
 									if loc in sam_dict[entry.rname].keys():
@@ -210,7 +214,7 @@ def do_MP_SNP_support(sam_file):
 
 		for snp in snps_list:
 			position = snp.position
-			snp_bin = rounddown(int(position))
+			snp_bin = (position//100)*100
 			contig = snp.contig
 
 
