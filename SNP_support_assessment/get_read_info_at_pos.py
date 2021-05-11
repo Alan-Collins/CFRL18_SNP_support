@@ -333,7 +333,7 @@ parser = argparse.ArgumentParser(
 	description="Given a SNP list file of format contig_ID\tsnp_position, and .sam files, looks up the read support for each SNP in each assembly and reports that information, highlighting any troubling low confidence base-calls.")
 parser.add_argument(
 	"-snp",  dest="snp_file", required = True,
-	help="Specify config file. "
+	help="Specify file containing a list of SNP locations. 1 per line. "
 	)
 parser.add_argument(
 	"-sams",  dest="sam_files", required = True, nargs='+',
@@ -357,7 +357,7 @@ parser.add_argument(
 	)
 parser.add_argument(
 	"-pickle", action='store_true',
-		help="Optional storage of reads that map to regions with snps as a pickled dict of format \{ contig : { 1kb_bin : [list of reads] } }"
+		help="Optional storage of reads that map to regions with snps as a pickled dict of format {contig: {1kb_bin: [list of reads]}}"
 	)
 
 args = parser.parse_args(sys.argv[1:])
