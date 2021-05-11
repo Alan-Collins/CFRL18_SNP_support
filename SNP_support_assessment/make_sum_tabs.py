@@ -31,8 +31,8 @@ con_score_to_write = []
 
 for i, file in enumerate(os.listdir(indir)):
 	infile = indir + file
-	cov_list = [file[:-16]]
-	cons_list = [file[:-16]]
+	cov_list = [file[:-16]] # file path up to _snp_support.txt
+	cons_list = [file[:-16]] # file path up to _snp_support.txt
 	with open(infile, 'r') as fin:
 		for j, line in enumerate(fin.readlines()[1:]):
 			bits = line.split()
