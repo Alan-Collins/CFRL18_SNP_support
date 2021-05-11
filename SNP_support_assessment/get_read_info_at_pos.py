@@ -345,7 +345,7 @@ parser.add_argument(
 	)
 parser.add_argument(
 	"-calls",  dest="calls_file", required = False,
-	help="Specify file with base calls from your assembler. "
+	help="Optional. Specify file with base calls from your assembler. "
 	)
 parser.add_argument(
 	"-outdir",  dest="outdir", required = True,
