@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+# AUTHOR      :  ALAN COLLINS
+# VERSION     :  v1
+# DATE        :  2021-1-8
+# DESCRIPTION :	 classes for processing sam and snp location files.
+
 class SAM_data(object):
 	"""stores columns of SAM entry as attributes
 	SAM format columns:
