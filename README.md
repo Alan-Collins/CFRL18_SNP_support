@@ -11,7 +11,7 @@ ___
 
 Look up SNP locations in reads in .sam files and report information about the reads at those locations in a file with the following columns:
 
-1.Contig	2.Position	3.Contig_Position	4.Reference_Reads_agree	5.Assembly_Reads_agree	6.Reference_base	7.Isolate_base	8.Assembly_base	9.Coverage	10.Consensus_score	11.Read_base_calls	12.Read_qualities	13.Read_identifiers
+1. Contig	2. Position	3. Contig_Position	4. Reference_Reads_agree	5. Assembly_Reads_agree	6. Reference_base	7. Isolate_base	8. Assembly_base	9. Coverage	10. Consensus_score	11. Read_base_calls	12. Read_qualities	13. Read_identifiers
 1. The contig in which the SNP is found.
 2. The position within that contig where the SNP is found (base 1 position - i.e. starts counting at position 1).
 3. The contig number and position in format Contig_Position.
