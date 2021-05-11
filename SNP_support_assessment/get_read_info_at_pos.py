@@ -34,7 +34,7 @@ import snpclasses
 start_time = time.time()
 
 def fasta_to_dict(FASTA_file):
-	"""convert fasta sequence into python dict object of form {fasta_header: sequence}
+	""" Convert fasta sequence into python dict object of form {fasta_header: sequence}
 	
 		Args:
 			FASTA_file (str): fasta format DNA sequence
@@ -60,8 +60,7 @@ def fasta_to_dict(FASTA_file):
 
 
 def cigar_mod_read(seq1, qual1, cigar):
-	"""
-		According to the M, I, and D components of a cigar string, modifies a seq and quality score strings so that they are in register with reference sequence 
+	""" According to the M, I, and D components of a cigar string, modifies a seq and quality score strings so that they are in register with reference sequence 
 	
 		Args:
 			seq1 (str): nucleotide sequence of read.
@@ -69,7 +68,8 @@ def cigar_mod_read(seq1, qual1, cigar):
 			cigar (str): cigar string of sam alignment of read against reference genome.
 	
 		Returns:
-			tuple: seq2 (str) cigar-modified sequence of read, qual2 (str) cigar-modified quality scores
+			tuple: seq2 (str) cigar-modified sequence of read,
+				   qual2 (str) cigar-modified quality scores
 	"""
 	cig_sects = re.findall('([0-9]+[A-Z]+)', cigar)
 
@@ -98,11 +98,20 @@ def cigar_mod_read(seq1, qual1, cigar):
 	return seq2, qual2
 
 
-
-
 def get_read_support(sam_dict, contig, position):
+	""" Find the base calls and quality scores from reads that align to a given position in a sam file.
 	
-	position = position
+		Args:
+			sam_dict (dict): dict describing the reads aligned at a given location. Made of nested dicts of format 
+							{contig: {location_bin: {read_ID : snpclasses.SAM_data class instance}}}
+			contig (str): Name of the contig containing the position of interest
+			position (int): Position of interest
+	
+		Returns:
+			tuple: bases (list) base calls of corresponding position in reads aligning at the position of interest,
+				   qualities (list) quality scores of corresponding position in reads aligning at the position of interest,
+				   ids (list) IDs of reads that align to the position of interest.
+	"""
 	snp_bin = (position//100)*100
 
 	bases, qualities, ids = [], [], []
@@ -121,6 +130,18 @@ def get_read_support(sam_dict, contig, position):
 
 
 def calc_consensus_score(called_base, read_bases, read_qualities, contig, position):
+	"""Calculate a measure of read consensus about the  base call at a goven position in a reference genome
+	
+		Args:
+			called_base (str): the base call given by your variant calling tool
+			read_bases (list): The bases at the corresponding location in all reads that align to the position of interest
+			read_qualities (list): The quality scores at the corresponding location in all reads that align to the position of interest
+			contig (str): Name of contig containing the position of interest
+			position (int): Position of interest
+	
+		Returns:
+			str: consensus score = sum of quality scores for bases agreeing with base call / sum of all quality scores for position of interest.
+	"""
 	agree_score = 0
 	disagree_score = 0
 
@@ -143,14 +164,18 @@ def calc_consensus_score(called_base, read_bases, read_qualities, contig, positi
 		print(read_qualities)
 		consensus_score = 0
 
-	return str("{:0.2f}".format(consensus_score))
+	return "{:0.2f}".format(consensus_score)
 
 
 def do_MP_SNP_support(sam_file):
+	"""Process the sam file for one of your isolates and write a file summarizing the support for variant calls for this isolate.
 	
+		Args:
+			sam_file (str): Path to sam file of reads of isolate to assess SNP support
+	"""
 	print("Processing %s..." % sam_file)
 
-	isolate_id = sam_file.split('/')[-1].split('.')[0]
+	isolate_id = sam_file.split('/')[-1].split('.')[0] # Captures a name for this isolate by taking the file name upto the first . assuming the only . character precedes the extension
 
 	sam_dict = {}
 	relevent_contigs = {} # dict to store contigs with snps so we can only import reads aligning to those contigs.
@@ -163,7 +188,8 @@ def do_MP_SNP_support(sam_file):
 	
 	print("Reading %s sam file..." % sam_file)
 
-	if args.pickle and os.path.isfile(sam_file[:-4] + "_sam_dict.pickle.gzip"):
+	if args.pickle and os.path.isfile(sam_file[:-4] + "_sam_dict.pickle.gzip"): # If you've already pickled the dict of reads mapping to a snp location. 
+	# Mostly useful for tweaking settings and rerunning.
 		try:
 			with gzip.open(sam_file[:-4] + "_sam_dict.pickle.gzip", 'rb') as picklein:
 				sam_dict = pickle.load(picklein)
@@ -177,14 +203,14 @@ def do_MP_SNP_support(sam_file):
 					entry = snpclasses.SAM_data(line)
 					try:
 						if entry.rname in relevent_contigs.keys():
-							if any([x in entry.cigar for x in ['D','I','S']]):
+							if any([x in entry.cigar for x in ['D','I','S']]): # Check if the read need to be padded to account for the alignment to reference.
 								entry.mod_seq, entry.mod_qual = cigar_mod_read(entry.seq, entry.qual, entry.cigar)
 								entry.refresh()
-							span_locs = [x for x in range((entry.pos//100)*100, entry.end, 100)]
-							if entry.rname in sam_dict.keys():
-								for loc in span_locs:
-									if loc in sam_dict[entry.rname].keys():
-										if entry.qname in sam_dict[entry.rname][loc].keys():
+							span_locs = [x for x in range((entry.pos//100)*100, entry.end, 100)] # identify genome bins read is present in
+							if entry.rname in sam_dict.keys(): # Have we already seen this contig?
+								for loc in span_locs: # Process each genome bin that this read is present in.
+									if loc in sam_dict[entry.rname].keys(): # If we've already seen a read aligned to this bin
+										if entry.qname in sam_dict[entry.rname][loc].keys(): # If partner reads have the same name
 											if entry.tlen not in [current.tlen for current in sam_dict[entry.rname][loc][entry.qname]]: # Should be positive for one read and negative for the other if they map to the same contig.
 												sam_dict[entry.rname][loc][entry.qname].append(entry)
 										else:
@@ -247,7 +273,8 @@ def do_MP_SNP_support(sam_file):
 			else:
 				print_line.append('0')
 
-			if assembly_base == variant_call:
+			if assembly_base == variant_call: # Base in the assembly might not be the same as the variant call if the variant
+			# caller requires a coverage or some other threshold to call a variant.
 				print_line.append('1')
 			else:
 				print_line.append('0')
@@ -287,8 +314,14 @@ def do_MP_SNP_support(sam_file):
 
 
 def pool_MP_snp_check(sam_files, threads, chunksize):
-
-	pool = multiprocessing.Pool(processes=int(threads))
+	"""Manager of worker processes
+	
+		Args:
+			sam_files (list): List of the sam files for isolates you want to process
+			threads (int): Number of threads to use
+			chunksize (int): approximate number of sam files to give to each process to work through.
+	"""
+	pool = multiprocessing.Pool(processes=threads)
 
 	pool.imap_unordered(do_MP_SNP_support, sam_files, chunksize)
 	pool.close()
