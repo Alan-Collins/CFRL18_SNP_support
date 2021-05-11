@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser(
 	description="Make summary tables describing coverage and consensus score for each SNP of each isolate in the input directory.")
 parser.add_argument(
 	"-i", dest="indir", required = True,
-	help="Path to input directory."
+	help="Path to input directory containing snp_support files output by get_read_info_at_pos.py."
 	)
 parser.add_argument(
 	"-o", dest="outfile", required = True,
