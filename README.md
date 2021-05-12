@@ -36,8 +36,8 @@ Inputs:
 
 **\-calls** CALLS_FILE     Specify file with base calls from your assembler. File should be a tab-delimited table with a header row of SNP locations starting in the second column of format contig_position. The first column of the header line is skipped. Subsequence lines should be of the format sample_ID followed by a tab-delimitey list of bases corresponding to the position described in the header. E.g.
 
-strain	1_142573	1_4473015
-Sample_1	T	C
+strain	1_142573	1_4473015  
+Sample_1	T	C  
 Sample_2	A	T
 
 **\-outdir**	Specify the path to the directory into which you want output files written.
